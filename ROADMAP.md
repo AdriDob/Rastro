@@ -37,8 +37,8 @@ Implement a stable, end-to-end bug bounty reconnaissance and analysis system wit
 - [x] Risk score sorting
 - [x] Target and endpoint metadata inclusion
 
-#### Dashboard (Streamlit)
-- [x] 7-tab layout: Targets, Recon, Endpoints, High Signal, Findings, Daily Digest, Logs
+-#### Dashboard (Streamlit)
+- [x] 9-tab layout: Targets, Recon, Endpoints, High Signal, Attack Decision, Findings, Daily Digest, Logs, Targets Intelligence
 - [x] Target creation and listing
 - [x] Target metadata display
 - [x] Recon tab with mode selector (FAST, DEEP, API)
@@ -60,6 +60,7 @@ Implement a stable, end-to-end bug bounty reconnaissance and analysis system wit
 - [x] POST /scans — launch recon pipeline
 - [x] GET /digest — high-signal digest
 - [x] POST /analysis/endpoint — local + AI endpoint analysis
+- [x] GET /attack/decision — attack prioritization and manual test suggestions
 
 #### Database (SQLite)
 - [x] Target model with timestamps

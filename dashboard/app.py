@@ -180,7 +180,7 @@ st.sidebar.markdown(f"**Estado:** {health_message}")
 st.title("Rastro — Dashboard")
 st.markdown("Ciberrecon táctico con señales claras, interfaz ligera y modo oscuro sutil.")
 
-tabs = st.tabs(["Targets", "Recon", "Endpoints", "High Signal", "Findings", "Daily Digest", "Logs", "Targets Intelligence"])
+tabs = st.tabs(["Targets", "Recon", "Endpoints", "High Signal", "Attack Decision", "Findings", "Daily Digest", "Logs", "Targets Intelligence"])
 
 with tabs[0]:
     st.header("Targets")
@@ -357,6 +357,63 @@ with tabs[3]:
         st.info("No hay señales de alto impacto. Ejecuta un scan o comprueba el backend.")
 
 with tabs[4]:
+    st.header("Attack Decision")
+    st.markdown("Prioriza objetivos con vectores de ataque y sugiere pruebas manuales basadas en el estado actual del backend.")
+    session = db.SessionLocal()
+    targets = session.query(models.Target).order_by(models.Target.created_at.desc()).all()
+    if targets:
+        target_options = {f"{t.id}: {t.name}": t.id for t in targets}
+        selected = st.selectbox("Selecciona un target para la decisión de ataque", list(target_options.keys()), key="attack_decision_target")
+        target_id = target_options[selected]
+        selected_target = session.query(models.Target).filter(models.Target.id == target_id).first()
+        if selected_target:
+            if st.button("Generar decisión de ataque"):
+                with st.spinner("Solicitando evaluación de ataque..."):
+                    decision = backend_request(f"/attack/decision?target_id={selected_target.id}")
+                if decision:
+                    st.success("Decisión generada")
+                    st.markdown(f"**Target:** {selected_target.name} — {selected_target.domain or 'sin dominio'}")
+                    st.markdown(f"**Motivo principal:** {decision.get('summary') or 'No hay resumen disponible.'}")
+
+                    attack_vectors = decision.get('attack_vectors') or []
+                    if attack_vectors:
+                        st.markdown("#### Vectores de ataque detectados")
+                        for vector in attack_vectors:
+                            with st.expander(f"{vector.get('vector')} — score {vector.get('confidence')}"):
+                                st.write(vector.get('description'))
+                                if vector.get('suggestions'):
+                                    st.markdown("**Sugerencias:**")
+                                    for suggestion in vector.get('suggestions'):
+                                        st.markdown(f"- {suggestion}")
+
+                    high_value = decision.get('high_value_targets') or []
+                    if high_value:
+                        st.markdown("#### Objetivos de alto valor")
+                        for item in high_value:
+                            st.markdown(f"- `{item.get('method')} {item.get('path')}` — {item.get('reason')} — score {item.get('risk_score')}")
+                            if item.get('notes'):
+                                st.write(item.get('notes'))
+
+                    ownership = decision.get('ownership_risks') or []
+                    if ownership:
+                        st.markdown("#### Riesgos de filtración de propiedad / credenciales")
+                        for risk in ownership:
+                            st.markdown(f"- {risk.get('issue')} — {risk.get('confidence')}")
+                            if risk.get('details'):
+                                st.write(risk.get('details'))
+
+                    suggestions = decision.get('manual_test_suggestions') or []
+                    if suggestions:
+                        st.markdown("#### Pruebas manuales sugeridas")
+                        for suggestion in suggestions:
+                            st.markdown(f"- {suggestion}")
+                else:
+                    st.error("No se pudo obtener la decisión de ataque. Verifica el backend.")
+    else:
+        st.info("Crea un target para generar decisiones de ataque.")
+    session.close()
+
+with tabs[5]:
     st.header("Findings")
     session = db.SessionLocal()
     findings = session.query(models.Finding).order_by(models.Finding.created_at.desc()).all()
@@ -372,7 +429,7 @@ with tabs[4]:
         st.info("No se han guardado hallazgos aún.")
     session.close()
 
-with tabs[5]:
+with tabs[6]:
     st.header("Daily Digest")
     digest = backend_request("/digest")
     if digest and digest.get("high_signal"):
@@ -384,7 +441,7 @@ with tabs[5]:
     else:
         st.info("No se pudo cargar el digest. Verifica el backend y el estado de conexión.")
 
-with tabs[6]:
+with tabs[7]:
     st.header("Logs")
     session = db.SessionLocal()
     targets = session.query(models.Target).order_by(models.Target.created_at.desc()).all()
@@ -406,7 +463,7 @@ with tabs[6]:
         st.info("No hay targets registrados.")
     session.close()
 
-with tabs[7]:
+with tabs[8]:
     st.header("Targets Intelligence")
     st.markdown("Información agregada desde programas públicos (HackerOne, Bugcrowd, Intigriti, YesWeHack)")
 

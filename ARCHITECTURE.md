@@ -68,6 +68,10 @@ AI integration is intentionally optional and local-first:
 - `analysis.py` — high-level endpoint analysis orchestrator
 - `prompts/` — prompt templates for concise, bug bounty-aware reasoning
 
+### `core/attack/`
+
+- `engine.py` — Attack Decision Engine that prioritizes actionable endpoint vectors, ownership risks, and manual test suggestions.
+
 ## Data Flow
 
 1. User creates or registers a target via the API.

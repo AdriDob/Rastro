@@ -42,6 +42,7 @@ streamlit run dashboard/app.py
 - `GET /endpoints` — listar endpoints
 - `POST /findings` — guardar hallazgos
 - `GET /findings` — listar hallazgos
+- `GET /attack/decision` — generar la decisión de ataque, vectores y pruebas sugeridas
 - `POST /analysis/endpoint` — análisis local + AI de un endpoint
 - `POST /scans` — ejecutar recon local en un target (FAST/DEEP/API)
 - `GET /digest` — obtener digest diario de endpoints de mayor riesgo
@@ -54,6 +55,7 @@ El dashboard ofrece:
 - creación de endpoints
 - análisis de endpoints y etiquetas de riesgo
 - scoring de prioridad de target y endpoint
+- pestaña Attack Decision con priorización de vectores y pruebas manuales sugeridas
 - generación de hipótesis AI usando Ollama (si está disponible)
 
 Lee `ARCHITECTURE.md` para una descripción del diseño del pipeline, los componentes y la filosofía de señal sobre ruido.
